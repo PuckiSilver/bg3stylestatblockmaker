@@ -83,6 +83,7 @@ const headline = computed(() => {
 const damageTypes = ['slashing', 'piercing', 'bludgeoning', 'acid', 'thunder', 'necrotic', 'fire', 'lightning', 'cold', 'psychic', 'poison', 'force', 'radiant']
 const resistances = computed(() => {
   return damageTypes.map(t => {return {
+    name: t[0].toUpperCase() + t.slice(1),
     image: `/src/assets/damage_types/${t}.webp`,
     vulnerable: statblockData.value.damage_vulnerabilities?.toLowerCase().includes(t),
     resistant: statblockData.value.damage_resistances?.toLowerCase().includes(t),
@@ -107,12 +108,25 @@ const abilityNumber = (value) => {
   <main>
     <h1>BG3 Style Stat Block Maker</h1>
     <textarea v-model="message" placeholder="Paste a yml statblock here in order to display it..." rows="5" cols="65"></textarea>
-    <input type="checkbox" v-model="showAbilities"/>
     <div class="statblock">
       <div>
         <span>{{ headline }}</span>
       </div>
       <div>
+        <div class="other-info">
+          <div class="has-tooltip">
+            <img src="@/assets/sneak_64_64.webp">
+            <div class="tooltip text-tooltip">Senses: {{ statblockData.senses }}</div>
+          </div>
+          <div class="has-tooltip">
+            <img src="@/assets/race_h.webp">
+            <div class="tooltip text-tooltip">Languages: {{ statblockData.languages }}</div>
+          </div>
+          <div class="has-tooltip">
+            <img src="@/assets/speed_64_64.webp">
+            <div class="tooltip text-tooltip">Speed: {{ statblockData.speed }}</div>
+          </div>
+        </div>
         <div class="portrait">
           <div class="image_wrapper">
             <img src="https://bg3.wiki/w/images/e/e8/Portrait_Death_Shepherd.png">
@@ -129,6 +143,7 @@ const abilityNumber = (value) => {
         <h1>{{ statblockData.name }}</h1>
       </div>
       <div v-if="statblockData.stats && statblockData.stats.length === 6">
+        <div class="buffer"></div>
         <div class="abilityscore">
           <span>STR</span>
           <span>{{ abilityNumber(0) }}</span>
@@ -153,16 +168,25 @@ const abilityNumber = (value) => {
           <span>CHA</span>
           <span>{{ abilityNumber(5) }}</span>
         </div>
+        <button class="swap-ability-display" @click="() => showAbilities = !showAbilities">
+          <img src="@/assets/recharge.webp">
+        </button>
       </div>
       <div v-if="resistances && resistances.length > 0">
         <span class="header">Resistances</span>
       </div>
-      <div v-if="resistances && resistances.length > 0" style="display: flex; flex-wrap: wrap;">
-        <div class="resistance" v-for="res in resistances">
+      <div v-if="resistances && resistances.length > 0" class="resistance-container">
+        <div class="resistance has-tooltip" v-for="res in resistances">
           <img :src="res.image">
           <img v-if="res.immune" src="@/assets/immune.webp" class="immune">
           <img v-if="res.resistant" src="@/assets/resistant.webp" class="resistant">
           <img v-if="res.vulnerable" src="@/assets/vulnerable.webp" class="vulnerable">
+          <div class="tooltip text-tooltip">{{
+            res.name +
+            (res.immune ? ' (Immune)' : '') +
+            (res.resistant ? ' (Resistant)' : '') +
+            (res.vulnerable ? ' (Vulnerable)' : '')
+          }}</div>
         </div>
       </div>
       <div v-if="statblockData.traits && statblockData.traits.length > 0">
@@ -170,11 +194,19 @@ const abilityNumber = (value) => {
       </div>
       <div v-if="statblockData.traits && statblockData.traits.length > 0">
         <div class="feature_container">
-          <div v-for="trait in statblockData.traits">
-            <img src="@/assets/features/generic_buff.webp">
-            <div>
+          <div v-for="trait in statblockData.traits" class="has-tooltip">
+            <img class="thumbnail" src="@/assets/features/generic_buff.webp">
+            <div class="name-and-desc">
               <span>{{ trait.name.replace(/\.$/,'') }}</span>
               <span>{{ trait.desc }}</span>
+            </div>
+            <div class="tooltip">
+              <div class="bg3-action-tooltip">
+                <span class="name">{{ trait.name.replace(/\.$/,'') }}</span>
+                <span class="sub-name">Feature</span>
+                <span class="desc">{{ trait.desc }}</span>
+                <img class="icon" src="@/assets/features/generic_buff.webp">
+              </div>
             </div>
           </div>
         </div>
@@ -184,11 +216,19 @@ const abilityNumber = (value) => {
       </div>
       <div v-if="statblockData.actions && statblockData.actions.length > 0">
         <div class="action_container">
-          <div v-for="action in statblockData.actions">
-            <img src="@/assets/actions/generic_action.webp">
-            <div>
+          <div class="has-tooltip" v-for="action in statblockData.actions">
+            <img class="thumbnail" src="@/assets/actions/generic_action.webp">
+            <div class="name-and-desc">
               <span>{{ action.name.replace(/\.$/,'') }}</span>
               <span>{{ action.desc }}</span>
+            </div>
+            <div class="tooltip">
+              <div class="bg3-action-tooltip">
+                <span class="name">{{ action.name.replace(/\.$/,'') }}</span>
+                <span class="sub-name">Action</span>
+                <span class="desc">{{ action.desc }}</span>
+                <img class="icon" src="@/assets/actions/generic_action.webp">
+              </div>
             </div>
           </div>
         </div>
@@ -198,31 +238,92 @@ const abilityNumber = (value) => {
 </template>
 
 <style scoped>
-  main {
-    --background-color: 0, 0, 0;
-    --gradient-dark: 24, 20, 17;
-    --gradient-bright: 46, 38, 29;
-    --border-color: 110, 80, 54;
-    --text-color-secondary: 153, 124, 97;
-    --text-color: 255, 255, 255;
-    --shadow-color: 0, 0, 0;
+main {
+  --background-color: 0, 0, 0;
+  --gradient-dark: 24, 20, 17;
+  --gradient-bright: 46, 38, 29;
+  --border-color: 110, 80, 54;
+  --text-color-secondary: 153, 124, 97;
+  --text-color: 255, 255, 255;
+  --shadow-color: 0, 0, 0;
 
-    background: rgb(var(--background-color));
+  background: rgb(var(--background-color));
+  color: rgb(var(--text-color));
+  font-family: "Aldine 721 Bold BT";
+  height: 100vh;
+  overflow-y: auto;
+  padding: 1rem;
+
+  textarea {
+    background-color: rgb(var(--gradient-dark));
     color: rgb(var(--text-color));
-    font-family: "Aldine 721 Bold BT";
-    height: 100vh;
-    overflow-y: auto;
-    padding: 1rem;
+    border-radius: .5rem;
+    border: .25rem solid rgb(var(--border-color));
+    padding: .5rem;
+    font-size: 1rem;
+  }
+}
 
-    textarea {
-      background-color: rgb(var(--gradient-dark));
-      color: rgb(var(--text-color));
-      border-radius: .5rem;
-      border: .25rem solid rgb(var(--border-color));
-      padding: .5rem;
-      font-size: 1rem;
+.has-tooltip {
+  position: relative;
+
+  .tooltip {
+    background: rgb(var(--gradient-bright));
+    position: absolute;
+    visibility: hidden;
+    bottom: calc(100% + .25rem);
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+    border-radius: .5rem;
+    border: .25rem solid rgb(var(--border-color));
+    padding: .5rem;
+  }
+
+  &:hover {
+    background-color: rgb(var(--gradient-bright));
+
+    .tooltip {
+      visibility: visible;
     }
   }
+}
+
+.bg3-action-tooltip {
+  display: flex;
+  flex-direction: column;
+  align-items: baseline !important;
+  gap: 0 !important;
+  position: relative;
+
+  .name {
+    font-size: 1.25rem;
+    margin-right: 2rem;
+  }
+
+  .sub-name {
+    color: rgb(var(--text-color-secondary));
+    margin-bottom: 1rem;
+    margin-right: 2rem;
+  }
+
+  .icon {
+    position: absolute;
+    background: transparent;
+    width: 5rem;
+    height: 5rem;
+    right: -1.5rem;
+    top: -1.5rem;
+  }
+}
+
+.text-tooltip {
+  width: max-content;
+  max-width: 14rem;
+  text-align: left;
+  display: flex;
+  justify-content: flex-start !important;
+}
 
 .statblock {
   border-radius: .5rem;
@@ -241,9 +342,31 @@ const abilityNumber = (value) => {
     align-items: center;
     justify-content: center;
 
+    &.resistance-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0;
+    }
+
+    .other-info {
+      width: calc(112rem * 0.035);
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+
+      div {
+        border-radius: .5rem;
+
+        img {
+          width: calc(64rem * 0.035);
+          height: calc(64rem * 0.035);
+          border-radius: .5rem;
+        }
+      }
+    }
+
     .portrait {
       position: relative;
-        margin-left: calc(112rem * 0.035 + .5rem);
 
       .image_wrapper {
         height: 8rem;
@@ -318,6 +441,30 @@ const abilityNumber = (value) => {
       }
     }
 
+    div.buffer {
+      width: calc(52rem * 0.04);
+    }
+
+    .swap-ability-display {
+      border: 0;
+      background-color: transparent;
+      padding: 0;
+      align-self: center;
+      cursor: pointer;
+
+      img {
+        width: calc(52rem * 0.04);
+        height: calc(60rem * 0.04);
+        border-radius: .5rem;
+      }
+
+      &:hover {
+        img {
+          background-color: rgb(var(--gradient-bright));
+        }
+      }
+    }
+
     .header {
       font-size: 1rem;
 
@@ -342,7 +489,9 @@ const abilityNumber = (value) => {
       width: calc(80rem * 0.025);
       height: calc(104rem * 0.025);
       position: relative;
-      margin-top: .5rem;
+      border-radius: .5rem;
+      padding: .125rem;
+      margin: .25rem .125rem 0 .125rem;
 
       img {
         width: 100%;
@@ -382,8 +531,9 @@ const abilityNumber = (value) => {
 
       div {
         width: 100%;
+        border-radius: .5rem;
 
-        img {
+        img.thumbnail {
           width: 2rem;
           height: 2rem;
           background-color: rgb(var(--gradient-bright));
@@ -391,7 +541,7 @@ const abilityNumber = (value) => {
           border: .125rem solid rgb(var(--border-color));
         }
   
-        div {
+        div.name-and-desc {
           position: relative;
           width: 100%;
           height: 2.5rem;
@@ -430,8 +580,9 @@ const abilityNumber = (value) => {
 
       div {
         width: 100%;
+        border-radius: .5rem;
 
-        img {
+        img.thumbnail {
           width: 2rem;
           height: 2rem;
           background-color: rgb(var(--gradient-bright));
@@ -439,7 +590,7 @@ const abilityNumber = (value) => {
           border: .125rem solid rgb(var(--border-color));
         }
   
-        div {
+        div.name-and-desc {
           position: relative;
           width: 100%;
           height: 2.5rem;
