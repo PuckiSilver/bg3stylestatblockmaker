@@ -2,22 +2,7 @@
 import { computed, ref } from 'vue';
 import { DamageTypes } from '@/enums/enums';
 
-const { statblock } = defineProps({
-  statblock: {
-    type: Object,
-    required: true,
-  }
-})
-
-const headline = computed(() => {
-  const line = [];
-  statblock.cr && line.push(`CR ${statblock.cr}`)
-  statblock.size && line.push(statblock.size)
-  statblock.type && line.push(statblock.type)
-  statblock.subtype && line.push(statblock.subtype)
-  statblock.alignment && line.push(statblock.alignment)
-  return (line && line.length > 0) && line.reduce((a, b) => `${a}, ${b}`) || ''
-})
+const statblock = defineModel()
 
 const resistances = computed(() => {
   return Object.values(DamageTypes).map(t => {return {
@@ -29,36 +14,54 @@ const resistances = computed(() => {
   }}).filter(t => t.vulnerable || t.resistant || t.immune)
 })
 
-const showAbilities = ref(false)
-
-const abilityNumber = (value) => {
-  if (showAbilities.value) {
-    return statblock.stats[value]
-  } else {
-    const bonus = Math.floor((statblock.stats[value] - 10) / 2)
-    return bonus > 0 ? `+${bonus}` : bonus
-  }
-}
 </script>
 
 <template>
   <div class="statblock">
-    <div>
-      <span>{{ headline }}</span>
+    <div class="headline">
+      <label class="text-input-label">
+        <span>CR</span>
+        <input v-model="statblock.cr" id="cr" type="text"/>
+      </label>
+      <label class="text-input-label">
+        <span>Size</span>
+        <input v-model="statblock.size" id="size" type="text"/>
+      </label>
+      <label class="text-input-label">
+        <span>Type</span>
+        <input v-model="statblock.type" id="type" type="text"/>
+      </label>
+      <label class="text-input-label">
+        <span>Subtype</span>
+        <input v-model="statblock.subtype" id="subtype" type="text"/>
+      </label>
+      <label class="text-input-label">
+        <span>Alignment</span>
+        <input v-model="statblock.alignment" id="alignment" type="text"/>
+      </label>
     </div>
     <div>
       <div class="other-info">
-        <div v-if="statblock.senses" class="has-tooltip">
+        <div>
           <img src="@/assets/sneak_64_64.webp">
-          <div class="tooltip text-tooltip">Senses: {{ statblock.senses }}</div>
+          <label class="text-input-label">
+            <span>Senses</span>
+            <input v-model="statblock.senses" type="text" id="senses"/>
+          </label>
         </div>
-        <div v-if="statblock.languages" class="has-tooltip">
+        <div>
           <img src="@/assets/race_h.webp">
-          <div class="tooltip text-tooltip">Languages: {{ statblock.languages }}</div>
+          <label class="text-input-label">
+            <span>Languages</span>
+            <input v-model="statblock.languages" type="text" id="languages"/>
+          </label>
         </div>
-        <div v-if="statblock.speed" class="has-tooltip">
+        <div>
           <img src="@/assets/speed_64_64.webp">
-          <div class="tooltip text-tooltip">Speed: {{ statblock.speed }}</div>
+          <label class="text-input-label">
+            <span>Speed</span>
+            <input v-model="statblock.speed" type="text" id="speed"/>
+          </label>
         </div>
       </div>
       <div class="portrait">
@@ -68,46 +71,75 @@ const abilityNumber = (value) => {
             'filter': `hue-rotate(${statblock.image_modifications?.hue ?? 0}deg)`,
           }">
         </div>
-        <span>{{ statblock.hp }}</span>
       </div>
-      <div class="acdisplay">
-        <img src="@/assets/ac_background.webp">
-        <span>AC</span>
-        <span>{{ statblock.ac }}</span>
+      <div class="main-info">
+        <div>
+          <img src="@/assets/levelUp_hp_h2.webp">
+          <label class="text-input-label">
+            <span>HP</span>
+            <input v-model="statblock.hp" type="text" id="hp"/>
+          </label>
+        </div>
+        <div>
+          <img src="@/assets/ac_background.webp">
+          <label class="text-input-label">
+            <span>AC</span>
+            <input v-model="statblock.ac" type="text" id="ac"/>
+          </label>
+        </div>
+        <label class="text-input-label">
+          <span>Image Link</span>
+          <input v-model="statblock.image" type="text" id="image"/>
+        </label>
+        <label class="text-input-label">
+          <span>Hue</span>
+          <input v-model="statblock.image_modifications.hue" type="number" id="hue"/>
+        </label>
+        <label class="text-input-label">
+          <span>X Offset</span>
+          <input v-model="statblock.image_modifications.x" type="number" id="y"/>
+        </label>
+        <label class="text-input-label">
+          <span>Y Offset</span>
+          <input v-model="statblock.image_modifications.y" type="number" id="x"/>
+        </label>
+        <label class="text-input-label">
+          <span>Scale</span>
+          <input v-model="statblock.image_modifications.scale" type="number" id="scale"/>
+        </label>
       </div>
     </div>
     <div>
-      <h1>{{ statblock.name }}</h1>
+      <label class="text-input-label">
+        <span>Name</span>
+        <input v-model="statblock.name" type="text" id="name" class="name-input"/>
+      </label>
     </div>
-    <div v-if="statblock.stats && statblock.stats.length === 6">
-      <div class="buffer"></div>
-      <div class="abilityscore">
+    <div class="ability-scores">
+      <label class="text-input-label">
         <span>STR</span>
-        <span>{{ abilityNumber(0) }}</span>
-      </div>
-      <div class="abilityscore">
+        <input v-model="statblock.stats[0]" type="text" id="str"/>
+      </label>
+      <label class="text-input-label">
         <span>DEX</span>
-        <span>{{ abilityNumber(1) }}</span>
-      </div>
-      <div class="abilityscore">
+        <input v-model="statblock.stats[1]" type="text" id="dex"/>
+      </label>
+      <label class="text-input-label">
         <span>CON</span>
-        <span>{{ abilityNumber(2) }}</span>
-      </div>
-      <div class="abilityscore">
+        <input v-model="statblock.stats[2]" type="text" id="con"/>
+      </label>
+      <label class="text-input-label">
         <span>INT</span>
-        <span>{{ abilityNumber(3) }}</span>
-      </div>
-      <div class="abilityscore">
+        <input v-model="statblock.stats[3]" type="text" id="int"/>
+      </label>
+      <label class="text-input-label">
         <span>WIS</span>
-        <span>{{ abilityNumber(4) }}</span>
-      </div>
-      <div class="abilityscore">
+        <input v-model="statblock.stats[4]" type="text" id="wis"/>
+      </label>
+      <label class="text-input-label">
         <span>CHA</span>
-        <span>{{ abilityNumber(5) }}</span>
-      </div>
-      <button class="swap-ability-display" @click="() => showAbilities = !showAbilities">
-        <img src="@/assets/recharge.webp">
-      </button>
+        <input v-model="statblock.stats[5]" type="text" id="cha"/>
+      </label>
     </div>
     <div v-if="resistances && resistances.length > 0">
       <span class="header">Resistances</span>
@@ -197,18 +229,30 @@ const abilityNumber = (value) => {
     }
 
     .other-info {
-      width: calc(112rem * 0.035);
+      width: 20rem;
       display: flex;
       flex-direction: column;
-      gap: 0;
+      gap: .25rem;
 
       div {
+        background-color: rgb(var(--gradient-bright));
         border-radius: .5rem;
+        gap: 0;
+        width: 100%;
 
         img {
           width: calc(64rem * 0.035);
           height: calc(64rem * 0.035);
           border-radius: .5rem;
+          object-fit: contain;
+        }
+
+        label {
+          width: 100%;
+
+          input {
+            width: 100%;
+          }
         }
       }
     }
@@ -231,69 +275,73 @@ const abilityNumber = (value) => {
           overflow: visible;
         }
       }
-
-      span {
-        background-color: rgba(var(--gradient-dark), .5);
-        border-radius: .5rem;
-        padding: .125rem .25rem;
-        position: absolute;
-        left: 50%;
-        bottom: .25rem;
-        transform: translate(-50%, 0);
-        text-shadow: rgb(var(--shadow-color)) 0 0 .5rem;
-        white-space: nowrap;
-      }
     }
 
-    .acdisplay {
-      width: calc(112rem * 0.035);
-      height: calc(136rem * 0.035);
-      position: relative;
-
-      img {
-        width: 100%;
-        height: 100%;
-      }
-
-      span:nth-child(2) {
-        position: absolute;
-        top: calc(50% - 1rem);
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 1rem;
-        text-shadow: rgb(var(--shadow-color)) 0 0 .5rem;
-      }
-
-      span:nth-child(3) {
-        position: absolute;
-        top: calc(50% + .25rem);
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 1.75rem;
-        text-shadow: rgb(var(--shadow-color)) 0 0 .5rem;
-        white-space: nowrap;
-      }
-    }
-
-    h1 {
-      padding: 0;
-      margin: 0;
-      font-size: 1.5rem;
-      text-align: center;
-    }
-
-    .abilityscore {
+    .main-info {
+      width: 20rem;
       display: flex;
-      flex-direction: column;
+      flex-wrap: wrap;
       gap: .25rem;
-      margin: 0 .25rem;
 
-      span:first-child {
-        color: rgb(var(--text-color-secondary));
+      div {
+        background-color: rgb(var(--gradient-bright));
+        border-radius: .5rem;
+        gap: 0;
+        width: calc(50% - .125rem);
+
+        label {
+          width: 100%;
+
+          input {
+            width: 100%;
+          }
+        }
+
+        img {
+          width: 2rem;
+          height: 2rem;
+          border-radius: .5rem;
+          object-fit: contain;
+        }
+
+        &:nth-child(1) {
+          width: calc(2 * ((100% - .5rem) / 3));
+        }
+
+        &:nth-child(2) {
+          width: calc((100% - .5rem) / 3);
+        }
       }
 
-      span:nth-child(2) {
-        font-size: 1.5rem;
+      &>label {
+        box-sizing: border-box;
+        width: calc((100% - .5rem) / 3);
+
+        &:nth-child(3) {
+          width: calc(2 * ((100% - .5rem) / 3));
+
+          input {
+            width: 100%;
+          }
+        }
+      }
+    }
+
+    input.name-input {
+      font-size: 1.5rem;
+      field-sizing: content;
+      width: unset;
+      min-width: 4rem;
+    }
+
+    &.ability-scores {
+      label {
+        width: 4rem;
+
+        input {
+          font-size: 1.5rem;
+          text-align: center;
+        }
       }
     }
 
@@ -318,26 +366,6 @@ const abilityNumber = (value) => {
         img {
           background-color: rgb(var(--gradient-bright));
         }
-      }
-    }
-
-    .header {
-      font-size: 1rem;
-
-      &::after {
-        margin-left: 1rem;
-        content: '-------';
-        height: .25rem;
-        width: 5rem;
-        color: rgb(var(--border-color));
-      }
-
-      &::before {
-        margin-right: 1rem;
-        content: '-------';
-        height: .25rem;
-        width: 5rem;
-        color: rgb(var(--border-color));
       }
     }
 
@@ -471,6 +499,10 @@ const abilityNumber = (value) => {
           }
         }
       }
+    }
+
+    &.headline label:first-child {
+      width: 5rem;
     }
   }
 }

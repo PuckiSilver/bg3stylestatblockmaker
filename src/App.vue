@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
 import Statblock from './components/Statblock.vue';
+import EditStatblock from './components/EditStatblock.vue';
 import yaml from 'js-yaml';
 
 const message = ref('');
@@ -16,13 +17,19 @@ const statblockData = computed(old => {
   } catch {}
   return old || {}
 })
+
+const a = ref({image_modifications:{},stats:[10,10,10,10,10,10]})
 </script>
 
 <template>
   <main>
     <h1>BG3 Style Stat Block Maker</h1>
     <textarea v-model="message" placeholder="Paste a yml statblock here in order to display it..." rows="5" cols="65"></textarea>
-    <Statblock :statblock="statblockData" />
+    {{ a }}
+    <div class="row">
+      <EditStatblock v-model="a"/>
+      <Statblock :statblock="a" />
+    </div>
   </main>
 </template>
 
@@ -50,6 +57,16 @@ main {
     border: .25rem solid rgb(var(--border-color));
     padding: .5rem;
     font-size: 1rem;
+
+    &:focus {
+      outline: none;
+      border-color: rgb(var(--text-color-secondary));
+    }
+  }
+
+  div.row {
+    display: flex;
+    gap: 1rem;
   }
 }
 </style>

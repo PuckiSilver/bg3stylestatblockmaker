@@ -58,3 +58,42 @@
   display: flex;
   justify-content: flex-start !important;
 }
+
+* {
+  font-family: "Aldine 721 Bold BT";
+}
+
+input {
+  font-size: 1rem;
+  color: rgb(var(--text-color));
+  background-color: rgb(var(--gradient-bright));
+  border-radius: .5rem;
+  border: .25rem solid rgb(var(--border-color));
+  padding: .25rem .5rem;
+  width: 10rem;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: rgb(var(--text-color-secondary));
+  }
+}
+
+label.text-input-label {
+  background-color: rgb(var(--gradient-bright));
+  position: relative;
+  padding: .75rem .25rem .25rem .25rem;
+  border-radius: .5rem;
+
+  span {
+    background-color: rgb(var(--gradient-bright));
+    position: absolute;
+    top: .25rem;
+    left: 1rem;
+    z-index: 1;
+    padding: 0 .25rem;
+    font-size: .825rem;
+    color: rgb(var(--text-color-secondary));
+  }
+}
