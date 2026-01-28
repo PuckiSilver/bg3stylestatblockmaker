@@ -1,0 +1,48 @@
+name: Hyrelius, der Dunkle Tyrann
+size: Medium
+type: undead
+image: https://i.pinimg.com/1200x/ee/14/f1/ee14f16caed7ca7ad748e52022cc91b1.jpg
+image_modifications:
+  x: 0
+  y: 130
+  scale: 2.4
+  hue: 350
+ac: 18+2 (20)
+hp: 180-220
+speed: 30 ft.
+stats:
+  - 16
+  - 8
+  - 18
+  - 8
+  - 12
+  - 13
+damage_vulnerabilities: bludgeoning
+damage_resistances: radiant
+damage_immunities: poison
+condition_immunities: poisoned
+senses: darkvision 60 ft., passive Perception 11
+languages: common, elvish
+bestiary: true
+traits:
+  - name: Aura der Verteidigung
+    desc: "Deine Verbündeten bekommen 2 AC zusätzlich, wenn sie innerhalb von 10ft. Radius um dich sind."
+  - name: Rüstung des dunklen Tyrann
+    desc: "Du kannst nicht turned, feared oder charmed werden."
+  - name: Paladin
+    desc: WIS und CHA saving throw proficiencies (+3)
+  - name: Lebensräuber
+    desc: "Wenn seit dem Anfang deines letzten Zuges magisch geheilt wurde, macht dein nächster getroffener Angriff 1d8 zusätzlichen radiant Schaden."
+actions:
+  - name: Greatsword
+    desc: "Melee Weapon Attack: +8 to hit, reach 5 ft., one target. Hit: 12 (2d6 + 5) slashing damage."
+  - name: Divine Smite (3/3)
+    desc: "+2d8 radiant."
+  - name: Moralschub
+    desc: "Bis du wieder dran bist, haben 4 sichtbare Ziele einen d4 auf Angriffswürfe"
+  - name: Wiederbelebung (Vorbereitet)
+    desc: "Beten. Magie der Rune fliegt als Orb in gefallene Person und heilt um 1d10 + 10 HP. (Zerstören möglich AC16)"
+  - name: Heilung (Vorbereitet)
+    desc: "Zeigt mit Schwert auf Person, strahl an roter Magie fließt auf Ziel zu. Heilt 1d10 + 13. (Umlenken möglich)"
+  - name: Lebensklinge (Vorbereitet)
+    desc: "Schwert sammelt Runenmagie. Um einen 15ft./90ft. Strahl (60°/90ft. Kegel) abzufeuertn. DEX saving throw (DC11) oder 4d5 + 10 radiant - sonst halbiert. (Cover/Disarm)"
