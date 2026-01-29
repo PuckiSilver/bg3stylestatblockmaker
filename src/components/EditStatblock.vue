@@ -6,14 +6,30 @@ const statblock = defineModel()
 
 const resistances = computed(() => {
   return Object.values(DamageTypes).map(t => {return {
+    id: t,
     name: t[0].toUpperCase() + t.slice(1),
     image: `/src/assets/damage_types/${t}.webp`,
-    vulnerable: statblock.damage_vulnerabilities?.toLowerCase().includes(t),
-    resistant: statblock.damage_resistances?.toLowerCase().includes(t),
-    immune: statblock.damage_immunities?.toLowerCase().includes(t),
-  }}).filter(t => t.vulnerable || t.resistant || t.immune)
+    vulnerable: statblock.value.damage_vulnerabilities?.toLowerCase().includes(t),
+    resistant: statblock.value.damage_resistances?.toLowerCase().includes(t),
+    immune: statblock.value.damage_immunities?.toLowerCase().includes(t),
+  }})
 })
 
+const toggelDamageType = (damageType) => {
+  const re = new RegExp(String.raw`,? ?${damageType}`, 'ig')
+  if (statblock.value.damage_vulnerabilities?.toLowerCase().includes(damageType)) {
+    statblock.value.damage_vulnerabilities && (statblock.value.damage_vulnerabilities = statblock.value.damage_vulnerabilities.replace(re, ''))
+    statblock.value.damage_resistances = statblock.value.damage_resistances ? `${statblock.value.damage_resistances}, ${damageType}` : damageType
+    statblock.value.damage_immunities && (statblock.value.damage_immunities = statblock.value.damage_immunities.replace(re, ''))
+  } else if (statblock.value.damage_resistances?.toLowerCase().includes(damageType)) {
+    statblock.value.damage_resistances && (statblock.value.damage_resistances = statblock.value.damage_resistances.replace(re, ''))
+    statblock.value.damage_immunities = statblock.value.damage_immunities ? `${statblock.value.damage_immunities}, ${damageType}` : damageType
+  } else if (statblock.value.damage_immunities?.toLowerCase().includes(damageType)) {
+    statblock.value.damage_immunities && (statblock.value.damage_immunities = statblock.value.damage_immunities.replace(re, ''))
+  } else {
+    statblock.value.damage_vulnerabilities = statblock.value.damage_vulnerabilities ? `${statblock.value.damage_vulnerabilities}, ${damageType}` : damageType
+  }
+}
 </script>
 
 <template>
@@ -74,18 +90,18 @@ const resistances = computed(() => {
       </div>
       <div class="main-info">
         <div>
-          <img src="@/assets/levelUp_hp_h2.webp">
           <label class="text-input-label">
             <span>HP</span>
             <input v-model="statblock.hp" type="text" id="hp"/>
           </label>
+          <img src="@/assets/levelUp_hp_h2.webp">
         </div>
         <div>
-          <img src="@/assets/ac_background.webp">
           <label class="text-input-label">
             <span>AC</span>
             <input v-model="statblock.ac" type="text" id="ac"/>
           </label>
+          <img src="@/assets/ac_background.webp">
         </div>
         <label class="text-input-label">
           <span>Image Link</span>
@@ -141,11 +157,11 @@ const resistances = computed(() => {
         <input v-model="statblock.stats[5]" type="text" id="cha"/>
       </label>
     </div>
-    <div v-if="resistances && resistances.length > 0">
+    <div>
       <span class="header">Resistances</span>
     </div>
-    <div v-if="resistances && resistances.length > 0" class="resistance-container">
-      <div class="resistance has-tooltip" v-for="res in resistances">
+    <div class="resistance-container">
+      <button class="resistance has-tooltip" v-for="res in resistances" @click="() => toggelDamageType(res.id)">
         <img :src="res.image">
         <img v-if="res.immune" src="@/assets/immune.webp" class="immune">
         <img v-if="res.resistant" src="@/assets/resistant.webp" class="resistant">
@@ -156,9 +172,9 @@ const resistances = computed(() => {
           (res.resistant ? ' (Resistant)' : '') +
           (res.vulnerable ? ' (Vulnerable)' : '')
         }}</div>
-      </div>
+      </button>
     </div>
-    <div v-if="statblock.traits && statblock.traits.length > 0">
+    <div>
       <span class="header">Notable Features</span>
     </div>
     <div v-if="statblock.traits && statblock.traits.length > 0">
@@ -210,7 +226,7 @@ const resistances = computed(() => {
   border-radius: .5rem;
   border: .25rem solid rgb(var(--border-color));
   background-image: linear-gradient(0deg, rgb(var(--gradient-dark)) 0%, rgb(var(--gradient-bright)) 100%);
-  padding: 2rem 3rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -300,6 +316,7 @@ const resistances = computed(() => {
         img {
           width: 2rem;
           height: 2rem;
+          margin-top: .5rem;
           border-radius: .5rem;
           object-fit: contain;
         }
@@ -376,6 +393,19 @@ const resistances = computed(() => {
       border-radius: .5rem;
       padding: .125rem;
       margin: .25rem .125rem 0 .125rem;
+      background-color: transparent;
+      border: 0;
+      color: rgb(var(--text-color));
+      font-size: 1rem;
+      box-sizing: unset;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        background-color: rgb(var(--gradient-bright));
+        cursor: pointer;
+      }
 
       img {
         width: 100%;
@@ -503,6 +533,26 @@ const resistances = computed(() => {
 
     &.headline label:first-child {
       width: 5rem;
+    }
+
+    .header {
+      font-size: 1rem;
+
+      &::after {
+        margin-left: 1rem;
+        content: '-------';
+        height: .25rem;
+        width: 5rem;
+        color: rgb(var(--border-color));
+      }
+
+      &::before {
+        margin-right: 1rem;
+        content: '-------';
+        height: .25rem;
+        width: 5rem;
+        color: rgb(var(--border-color));
+      }
     }
   }
 }

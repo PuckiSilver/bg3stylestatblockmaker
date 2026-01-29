@@ -178,7 +178,7 @@ const abilityNumber = (value) => {
   border-radius: .5rem;
   border: .25rem solid rgb(var(--border-color));
   background-image: linear-gradient(0deg, rgb(var(--gradient-dark)) 0%, rgb(var(--gradient-bright)) 100%);
-  padding: 2rem 3rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
