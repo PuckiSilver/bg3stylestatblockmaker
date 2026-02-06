@@ -15,6 +15,12 @@ const resistances = computed(() => {
   }})
 })
 
+const editingFeatureIndex = ref()
+const editingFeature = ref({
+  name: undefined,
+  desc: undefined,
+})
+
 const toggelDamageType = (damageType) => {
   const re = new RegExp(String.raw`,? ?${damageType}`, 'ig')
   if (statblock.value.damage_vulnerabilities?.toLowerCase().includes(damageType)) {
@@ -29,6 +35,38 @@ const toggelDamageType = (damageType) => {
   } else {
     statblock.value.damage_vulnerabilities = statblock.value.damage_vulnerabilities ? `${statblock.value.damage_vulnerabilities}, ${damageType}` : damageType
   }
+}
+
+const moveItem = (arr, from, to) => {
+  if (to >= arr.length || to < 0) {
+    return
+  }
+  const e = arr.splice(from, 1)[0]
+  arr.splice(to, 0, e)
+}
+
+const createNewFeature = () => {
+  const last = editingFeatureIndex.value
+  editingFeatureIndex.value = statblock.value?.traits?.length ?? 0
+  if (editingFeatureIndex.value !== last) {
+    editingFeature.value = {
+      name: undefined,
+      desc: undefined,
+    }
+  }
+}
+
+const stopEditingFeature = () => {
+  editingFeatureIndex.value = undefined
+}
+
+const confirmEditingFeature = () => {
+  if (editingFeatureIndex.value >= (statblock.value.traits?.length ?? 0)) {
+    statblock.value.traits = [...(statblock.value.traits || []), {}]
+  }
+  statblock.value.traits[editingFeatureIndex.value].name = editingFeature.value.name
+  statblock.value.traits[editingFeatureIndex.value].desc = editingFeature.value.desc
+  editingFeatureIndex.value = undefined
 }
 </script>
 
@@ -59,24 +97,24 @@ const toggelDamageType = (damageType) => {
     <div>
       <div class="other-info">
         <div>
-          <img src="@/assets/sneak_64_64.webp">
           <label class="text-input-label">
             <span>Senses</span>
             <input v-model="statblock.senses" type="text" id="senses"/>
+            <img src="@/assets/sneak_64_64.webp">
           </label>
         </div>
         <div>
-          <img src="@/assets/race_h.webp">
           <label class="text-input-label">
             <span>Languages</span>
             <input v-model="statblock.languages" type="text" id="languages"/>
+            <img src="@/assets/race_h.webp">
           </label>
         </div>
         <div>
-          <img src="@/assets/speed_64_64.webp">
           <label class="text-input-label">
             <span>Speed</span>
             <input v-model="statblock.speed" type="text" id="speed"/>
+            <img src="@/assets/speed_64_64.webp">
           </label>
         </div>
       </div>
@@ -93,15 +131,15 @@ const toggelDamageType = (damageType) => {
           <label class="text-input-label">
             <span>HP</span>
             <input v-model="statblock.hp" type="text" id="hp"/>
+            <img src="@/assets/levelUp_hp_h2.webp">
           </label>
-          <img src="@/assets/levelUp_hp_h2.webp">
         </div>
         <div>
           <label class="text-input-label">
             <span>AC</span>
             <input v-model="statblock.ac" type="text" id="ac"/>
+            <img src="@/assets/ac.webp">
           </label>
-          <img src="@/assets/ac_background.webp">
         </div>
         <label class="text-input-label">
           <span>Image Link</span>
@@ -177,23 +215,39 @@ const toggelDamageType = (damageType) => {
     <div>
       <span class="header">Notable Features</span>
     </div>
-    <div v-if="statblock.traits && statblock.traits.length > 0">
+    <div v-if="editingFeatureIndex !== undefined" class="edit-feature">
+      <div class="edit-feature-name">
+        <label class="text-input-label">
+          <span>Name</span>
+          <input v-model="editingFeature.name" type="text" id="edit-feature-name"/>
+        </label>
+        <img src="@/assets/features/generic_buff.webp">
+      </div>
+      <label class="text-input-label edit-feature-desc">
+        <span>Description</span>
+        <textarea v-model="editingFeature.desc" id="edit-feature-desc"/>
+      </label>
+      <button @click="confirmEditingFeature" class="confirm-button">Confirm</button>
+      <button @click="stopEditingFeature" class="close-button"/>
+    </div>
+    <div>
       <div class="feature_container">
-        <div v-for="trait in statblock.traits" class="has-tooltip">
+        <div v-for="trait in statblock.traits?.filter(t => t.name || t.desc)" class="has-tooltip">
           <img class="thumbnail" src="@/assets/features/generic_buff.webp">
           <div class="name-and-desc">
-            <span>{{ trait.name.replace(/\.$/,'') }}</span>
+            <span>{{ trait.name?.replace(/\.$/,'') }}</span>
             <span>{{ trait.desc }}</span>
           </div>
           <div class="tooltip">
             <div class="bg3-action-tooltip">
-              <span class="name">{{ trait.name.replace(/\.$/,'') }}</span>
+              <span class="name">{{ trait.name?.replace(/\.$/,'') }}</span>
               <span class="sub-name">Feature</span>
               <span class="desc">{{ trait.desc }}</span>
               <img class="icon" src="@/assets/features/generic_buff.webp">
             </div>
           </div>
         </div>
+        <button @click="createNewFeature"/>
       </div>
     </div>
     <div v-if="statblock.actions && statblock.actions.length > 0">
@@ -256,13 +310,6 @@ const toggelDamageType = (damageType) => {
         gap: 0;
         width: 100%;
 
-        img {
-          width: calc(64rem * 0.035);
-          height: calc(64rem * 0.035);
-          border-radius: .5rem;
-          object-fit: contain;
-        }
-
         label {
           width: 100%;
 
@@ -311,14 +358,6 @@ const toggelDamageType = (damageType) => {
           input {
             width: 100%;
           }
-        }
-
-        img {
-          width: 2rem;
-          height: 2rem;
-          margin-top: .5rem;
-          border-radius: .5rem;
-          object-fit: contain;
         }
 
         &:nth-child(1) {
@@ -371,7 +410,6 @@ const toggelDamageType = (damageType) => {
       background-color: transparent;
       padding: 0;
       align-self: center;
-      cursor: pointer;
 
       img {
         width: calc(52rem * 0.04);
@@ -404,7 +442,6 @@ const toggelDamageType = (damageType) => {
 
       &:hover {
         background-color: rgb(var(--gradient-bright));
-        cursor: pointer;
       }
 
       img {
@@ -430,6 +467,80 @@ const toggelDamageType = (damageType) => {
         height: calc(60rem * 0.025);
         position: absolute;
         top: -1rem;
+      }
+    }
+
+    &.edit-feature {
+      background-color: rgb(var(--gradient-dark));
+      border: .25rem solid rgb(var(--border-color));
+      border-radius: .5rem;
+      position: relative;
+      margin-bottom: .75rem;
+      width: inherit;
+      margin: 0 auto;
+      padding: .5rem 3rem 1.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+
+      .edit-feature-name {
+        label {
+          width: 20rem;
+
+          input {
+            font-size: 1.25rem;
+          }
+        }
+
+        img {
+          width: 3rem;
+          height: 3rem;
+          background-color: rgb(var(--gradient-bright));
+          border-radius: .5rem;
+          border: .125rem solid rgb(var(--border-color));
+        }
+      }
+
+      .edit-feature-desc {
+        width: 100%;
+      }
+
+      .confirm-button {
+        background-color: rgb(var(--color-confirm));
+        border: .125rem solid rgb(var(--border-color));
+        border-radius: .5rem;
+        color: rgb(var(--text-color));
+        font-size: 1rem;
+        padding: .25rem .5rem;
+        min-width: 7.5rem;
+        position: absolute;
+        bottom: 0;
+        right: 50%;
+        transform: translate(50%, 50%);
+
+        &:hover {
+          background-color: rgb(var(--color-confirm-hover));
+        }
+      }
+
+      .close-button {
+        background-color: rgb(var(--gradient-dark));
+        background-size: 1.5rem;
+        background-repeat: no-repeat;
+        background-position: 50%;
+        background-image: url('@/assets/close_d.webp');
+        position: absolute;
+        top: .25rem;
+        right: .25rem;
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        border: .125rem solid rgb(var(--border-color));
+
+        &:hover {
+          border-color: rgb(var(--text-color-secondary));
+          background-image: url('@/assets/close_h.webp');
+          background-color: rgb(var(--gradient-bright));
+        }
       }
     }
 
@@ -478,6 +589,32 @@ const toggelDamageType = (damageType) => {
             margin-top: 2.5rem;
             font-size: .875rem;
           }
+        }
+      }
+
+      button {
+        width: 100%;
+        height: 2.5rem;
+        padding: 0;
+        background-color: transparent;
+        border-radius: .5rem;
+        border: .125rem solid rgb(var(--border-color));
+        color: rgb(var(--border-color));
+        position: relative;
+
+        &:hover {
+          background-color: rgb(var(--gradient-bright));
+          border-color: rgb(var(--text-color-secondary));
+          color: rgb(var(--text-color-secondary));
+        }
+
+        &::after {
+          content: '+';
+          font-size: 2.5rem;
+          position: absolute;
+          top: calc(50% - .125rem);
+          left: 50%;
+          transform: translate(-50%, -50%);
         }
       }
     }
@@ -540,18 +677,23 @@ const toggelDamageType = (damageType) => {
 
       &::after {
         margin-left: 1rem;
-        content: '-------';
-        height: .25rem;
-        width: 5rem;
-        color: rgb(var(--border-color));
+        content: '';
+        display: inline-block;
+        background: url('@/assets/decor_header.webp');
+        background-size: 100%;
+        height: calc(20rem * 0.035);
+        width: calc(84rem * 0.035);
+        transform: scale(-1, 1);
       }
 
       &::before {
         margin-right: 1rem;
-        content: '-------';
-        height: .25rem;
-        width: 5rem;
-        color: rgb(var(--border-color));
+        content: '';
+        display: inline-block;
+        background: url('@/assets/decor_header.webp');
+        background-size: 100%;
+        height: calc(20rem * 0.035);
+        width: calc(84rem * 0.035);
       }
     }
   }

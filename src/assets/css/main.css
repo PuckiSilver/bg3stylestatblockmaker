@@ -10,7 +10,7 @@
     transform: translate(-50%, 0);
     z-index: 1;
     border-radius: .5rem;
-    border: .25rem solid rgb(var(--border-color));
+    border: .125rem solid rgb(var(--border-color));
     padding: .5rem;
   }
 
@@ -68,11 +68,32 @@ input {
   color: rgb(var(--text-color));
   background-color: rgb(var(--gradient-bright));
   border-radius: .5rem;
-  border: .25rem solid rgb(var(--border-color));
+  border: .125rem solid rgb(var(--border-color));
   padding: .25rem .5rem;
   width: 10rem;
   max-width: 100%;
   box-sizing: border-box;
+  min-width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: rgb(var(--text-color-secondary));
+  }
+}
+
+textarea {
+  font-size: 1rem;
+  color: rgb(var(--text-color));
+  background-color: rgb(var(--gradient-bright));
+  border-radius: .5rem;
+  border: .125rem solid rgb(var(--border-color));
+  padding: .25rem .5rem;
+  width: 10rem;
+  max-width: 100%;
+  box-sizing: border-box;
+  resize: none;
+  field-sizing: content;
+  min-width: 100%;
 
   &:focus {
     outline: none;
@@ -96,4 +117,28 @@ label.text-input-label {
     font-size: .825rem;
     color: rgb(var(--text-color-secondary));
   }
+
+  img {
+    position: absolute;
+    z-index: 1;
+    left: 1.25rem;
+    bottom: 1.25rem;
+    transform: translate(-50%, 50%);
+    max-width: 2rem;
+    max-height: 2rem;
+  }
+
+  &:has(img) {
+    span {
+      left: 2.25rem;
+    }
+
+    input {
+      padding-left: 1.75rem;
+    }
+  }
+}
+
+button:hover {
+  cursor: pointer;
 }

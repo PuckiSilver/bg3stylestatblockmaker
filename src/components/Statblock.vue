@@ -29,14 +29,14 @@ const resistances = computed(() => {
   }}).filter(t => t.vulnerable || t.resistant || t.immune)
 })
 
-const showAbilities = ref(false)
+const showAbilities = ref(true)
 
 const abilityNumber = (value) => {
   if (showAbilities.value) {
     return statblock.stats[value]
   } else {
     const bonus = Math.floor((statblock.stats[value] - 10) / 2)
-    return bonus > 0 ? `+${bonus}` : bonus
+    return bonus > 0 ? `+${bonus}` : bonus === 0 ? '+0' : bonus
   }
 }
 </script>
@@ -126,20 +126,20 @@ const abilityNumber = (value) => {
         }}</div>
       </div>
     </div>
-    <div v-if="statblock.traits && statblock.traits.length > 0">
+    <div v-if="statblock.traits && statblock.traits.length > 0 && statblock.traits.some(t => t.name || t.desc)">
       <span class="header">Notable Features</span>
     </div>
-    <div v-if="statblock.traits && statblock.traits.length > 0">
+    <div v-if="statblock.traits && statblock.traits.length > 0 && statblock.traits.some(t => t.name || t.desc)">
       <div class="feature_container">
-        <div v-for="trait in statblock.traits" class="has-tooltip">
+        <div v-for="trait in statblock.traits.filter(t => t.name || t.desc)" class="has-tooltip">
           <img class="thumbnail" src="@/assets/features/generic_buff.webp">
           <div class="name-and-desc">
-            <span>{{ trait.name.replace(/\.$/,'') }}</span>
+            <span>{{ trait.name?.replace(/\.$/,'') }}</span>
             <span>{{ trait.desc }}</span>
           </div>
           <div class="tooltip">
             <div class="bg3-action-tooltip">
-              <span class="name">{{ trait.name.replace(/\.$/,'') }}</span>
+              <span class="name">{{ trait.name?.replace(/\.$/,'') }}</span>
               <span class="sub-name">Feature</span>
               <span class="desc">{{ trait.desc }}</span>
               <img class="icon" src="@/assets/features/generic_buff.webp">
@@ -306,7 +306,6 @@ const abilityNumber = (value) => {
       background-color: transparent;
       padding: 0;
       align-self: center;
-      cursor: pointer;
 
       img {
         width: calc(52rem * 0.04);
@@ -326,18 +325,23 @@ const abilityNumber = (value) => {
 
       &::after {
         margin-left: 1rem;
-        content: '-------';
-        height: .25rem;
-        width: 5rem;
-        color: rgb(var(--border-color));
+        content: '';
+        display: inline-block;
+        background: url('@/assets/decor_header.webp');
+        background-size: 100%;
+        height: calc(20rem * 0.035);
+        width: calc(84rem * 0.035);
+        transform: scale(-1, 1);
       }
 
       &::before {
         margin-right: 1rem;
-        content: '-------';
-        height: .25rem;
-        width: 5rem;
-        color: rgb(var(--border-color));
+        content: '';
+        display: inline-block;
+        background: url('@/assets/decor_header.webp');
+        background-size: 100%;
+        height: calc(20rem * 0.035);
+        width: calc(84rem * 0.035);
       }
     }
 
