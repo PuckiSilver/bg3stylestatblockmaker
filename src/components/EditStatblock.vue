@@ -15,12 +15,6 @@ const resistances = computed(() => {
   }})
 })
 
-const editingFeatureIndex = ref()
-const editingFeature = ref({
-  name: undefined,
-  desc: undefined,
-})
-
 const toggelDamageType = (damageType) => {
   const re = new RegExp(String.raw`,? ?${damageType}`, 'ig')
   if (statblock.value.damage_vulnerabilities?.toLowerCase().includes(damageType)) {
@@ -45,6 +39,54 @@ const moveItem = (arr, from, to) => {
   arr.splice(to, 0, e)
 }
 
+const editingActionIndex = ref()
+const editingAction = ref({
+  name: undefined,
+  desc: undefined,
+})
+
+const createNewAction = () => {
+  const last = editingActionIndex.value
+  editingActionIndex.value = statblock.value?.actions?.length ?? 0
+  if (editingActionIndex.value !== last) {
+    editingAction.value = {
+      name: undefined,
+      desc: undefined,
+    }
+  }
+}
+
+const stopEditingAction = () => {
+  editingActionIndex.value = undefined
+}
+
+const confirmEditingAction = () => {
+  if (editingActionIndex.value >= (statblock.value.actions?.length ?? 0)) {
+    statblock.value.actions = [...(statblock.value.actions || []), {}]
+  }
+  statblock.value.actions[editingActionIndex.value].name = editingAction.value.name
+  statblock.value.actions[editingActionIndex.value].desc = editingAction.value.desc
+  statblock.value.actions = statblock.value.actions.filter(a => a.name || a.desc)
+  editingActionIndex.value = undefined
+}
+
+const startEditingAction = idx => {
+  const last = editingActionIndex.value
+  editingActionIndex.value = idx
+  if (editingActionIndex.value !== last) {
+    editingAction.value = {
+      name: statblock.value.actions[idx].name,
+      desc: statblock.value.actions[idx].desc,
+    }
+  }
+}
+
+const editingFeatureIndex = ref()
+const editingFeature = ref({
+  name: undefined,
+  desc: undefined,
+})
+
 const createNewFeature = () => {
   const last = editingFeatureIndex.value
   editingFeatureIndex.value = statblock.value?.traits?.length ?? 0
@@ -66,7 +108,19 @@ const confirmEditingFeature = () => {
   }
   statblock.value.traits[editingFeatureIndex.value].name = editingFeature.value.name
   statblock.value.traits[editingFeatureIndex.value].desc = editingFeature.value.desc
+  statblock.value.traits = statblock.value.traits.filter(t => t.name || t.desc)
   editingFeatureIndex.value = undefined
+}
+
+const startEditingFeature = idx => {
+  const last = editingFeatureIndex.value
+  editingFeatureIndex.value = idx
+  if (editingFeatureIndex.value !== last) {
+    editingFeature.value = {
+      name: statblock.value.traits[idx].name,
+      desc: statblock.value.traits[idx].desc,
+    }
+  }
 }
 </script>
 
@@ -215,15 +269,15 @@ const confirmEditingFeature = () => {
     <div>
       <span class="header">Notable Features</span>
     </div>
-    <div v-if="editingFeatureIndex !== undefined" class="edit-feature">
-      <div class="edit-feature-name">
+    <div v-if="editingFeatureIndex !== undefined" class="edit-container">
+      <div class="edit-name">
         <label class="text-input-label">
           <span>Name</span>
           <input v-model="editingFeature.name" type="text" id="edit-feature-name"/>
         </label>
         <img src="@/assets/features/generic_buff.webp">
       </div>
-      <label class="text-input-label edit-feature-desc">
+      <label class="text-input-label edit-desc">
         <span>Description</span>
         <textarea v-model="editingFeature.desc" id="edit-feature-desc"/>
       </label>
@@ -231,8 +285,12 @@ const confirmEditingFeature = () => {
       <button @click="stopEditingFeature" class="close-button"/>
     </div>
     <div>
-      <div class="feature_container">
-        <div v-for="trait in statblock.traits?.filter(t => t.name || t.desc)" class="has-tooltip">
+      <div class="list-container">
+        <button
+          v-for="(trait, idx) in statblock.traits?.filter(t => t.name || t.desc)"
+          class="has-tooltip feature-row"
+          @click="() => startEditingFeature(idx)"
+        >
           <img class="thumbnail" src="@/assets/features/generic_buff.webp">
           <div class="name-and-desc">
             <span>{{ trait.name?.replace(/\.$/,'') }}</span>
@@ -246,17 +304,36 @@ const confirmEditingFeature = () => {
               <img class="icon" src="@/assets/features/generic_buff.webp">
             </div>
           </div>
-        </div>
-        <button @click="createNewFeature"/>
+        </button>
+        <button class="add-new" @click="createNewFeature"/>
       </div>
     </div>
-    <div v-if="statblock.actions && statblock.actions.length > 0">
+    <div>
       <span class="header">Actions</span>
     </div>
-    <div v-if="statblock.actions && statblock.actions.length > 0">
-      <div class="action_container">
-        <div class="has-tooltip" v-for="action in statblock.actions">
-          <img class="thumbnail" src="@/assets/actions/generic_action.webp">
+    <div v-if="editingActionIndex !== undefined" class="edit-container">
+      <div class="edit-name">
+        <label class="text-input-label">
+          <span>Name</span>
+          <input v-model="editingAction.name" type="text" id="edit-action-name"/>
+        </label>
+        <img src="@/assets/actions/generic_action.webp">
+      </div>
+      <label class="text-input-label edit-desc">
+        <span>Description</span>
+        <textarea v-model="editingAction.desc" id="edit-action-desc"/>
+      </label>
+      <button @click="confirmEditingAction" class="confirm-button">Confirm</button>
+      <button @click="stopEditingAction" class="close-button"/>
+    </div>
+    <div>
+      <div class="list-container">
+        <button
+          v-for="(action, idx) in statblock.actions?.filter(t => t.name || t.desc)"
+          class="has-tooltip feature-row"
+          @click="() => startEditingAction(idx)"
+        >
+          <img class="thumbnail-square" src="@/assets/actions/generic_action.webp">
           <div class="name-and-desc">
             <span>{{ action.name.replace(/\.$/,'') }}</span>
             <span>{{ action.desc }}</span>
@@ -269,7 +346,8 @@ const confirmEditingFeature = () => {
               <img class="icon" src="@/assets/actions/generic_action.webp">
             </div>
           </div>
-        </div>
+        </button>
+        <button class="add-new" @click="createNewAction"/>
       </div>
     </div>
   </div>
@@ -392,7 +470,7 @@ const confirmEditingFeature = () => {
 
     &.ability-scores {
       label {
-        width: 4rem;
+        width: 3.5rem;
 
         input {
           font-size: 1.5rem;
@@ -470,7 +548,7 @@ const confirmEditingFeature = () => {
       }
     }
 
-    &.edit-feature {
+    &.edit-container {
       background-color: rgb(var(--gradient-dark));
       border: .25rem solid rgb(var(--border-color));
       border-radius: .5rem;
@@ -482,7 +560,7 @@ const confirmEditingFeature = () => {
       display: flex;
       flex-direction: column;
 
-      .edit-feature-name {
+      .edit-name {
         label {
           width: 20rem;
 
@@ -500,7 +578,7 @@ const confirmEditingFeature = () => {
         }
       }
 
-      .edit-feature-desc {
+      .edit-desc {
         width: 100%;
       }
 
@@ -544,7 +622,7 @@ const confirmEditingFeature = () => {
       }
     }
 
-    .feature_container {
+    .list-container {
       background-color: rgb(var(--gradient-dark));
       display: flex;
       flex-direction: column;
@@ -554,9 +632,21 @@ const confirmEditingFeature = () => {
       border-radius: .5rem;
       width: 100%;
 
-      div {
+      button.feature-row {
         width: 100%;
         border-radius: .5rem;
+        display: flex;
+        gap: .5rem;
+        align-items: center;
+        justify-content: center;
+        color: rgb(var(--text-color));
+        border: 0;
+        background-color: transparent;
+        font-size: 1rem;
+
+        &:hover {
+          background-color: rgb(var(--gradient-bright));
+        }
 
         img.thumbnail {
           width: 2rem;
@@ -565,75 +655,8 @@ const confirmEditingFeature = () => {
           border-radius: 50%;
           border: .125rem solid rgb(var(--border-color));
         }
-  
-        div.name-and-desc {
-          position: relative;
-          width: 100%;
-          height: 2.5rem;
 
-          span:first-child {
-            color: rgb(var(--text-color-secondary));
-            margin-right: auto;
-            margin-bottom: auto;
-          }
-
-          span:nth-child(2) {
-            color: rgba(var(--text-color-secondary), .5);
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            margin-right: auto;
-            margin-top: 2.5rem;
-            font-size: .875rem;
-          }
-        }
-      }
-
-      button {
-        width: 100%;
-        height: 2.5rem;
-        padding: 0;
-        background-color: transparent;
-        border-radius: .5rem;
-        border: .125rem solid rgb(var(--border-color));
-        color: rgb(var(--border-color));
-        position: relative;
-
-        &:hover {
-          background-color: rgb(var(--gradient-bright));
-          border-color: rgb(var(--text-color-secondary));
-          color: rgb(var(--text-color-secondary));
-        }
-
-        &::after {
-          content: '+';
-          font-size: 2.5rem;
-          position: absolute;
-          top: calc(50% - .125rem);
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
-      }
-    }
-
-    .action_container {
-      background-color: rgb(var(--gradient-dark));
-      display: flex;
-      flex-direction: column;
-      gap: .25rem;
-      align-items: baseline;
-      padding: .5rem 1rem;
-      border-radius: .5rem;
-      width: 100%;
-
-      div {
-        width: 100%;
-        border-radius: .5rem;
-
-        img.thumbnail {
+        img.thumbnail-square {
           width: 2rem;
           height: 2rem;
           background-color: rgb(var(--gradient-bright));
@@ -663,7 +686,33 @@ const confirmEditingFeature = () => {
             margin-right: auto;
             margin-top: 2.5rem;
             font-size: .875rem;
+            text-align: left;
           }
+        }
+      }
+
+      button.add-new {
+        width: 100%;
+        height: 2.5rem;
+        padding: 0;
+        background-color: transparent;
+        border-radius: .5rem;
+        border: 0;
+        color: rgb(var(--border-color));
+        position: relative;
+
+        &:hover {
+          background-color: rgb(var(--gradient-bright));
+          color: rgb(var(--text-color-secondary));
+        }
+
+        &::after {
+          content: '+';
+          font-size: 2.5rem;
+          position: absolute;
+          top: calc(50% - .125rem);
+          left: 50%;
+          transform: translate(-50%, -50%);
         }
       }
     }

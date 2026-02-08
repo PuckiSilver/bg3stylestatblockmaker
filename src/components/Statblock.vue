@@ -423,6 +423,7 @@ const abilityNumber = (value) => {
             margin-right: auto;
             margin-top: 2.5rem;
             font-size: .875rem;
+            text-align: left;
           }
         }
       }

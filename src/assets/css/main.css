@@ -32,13 +32,14 @@
 
   .name {
     font-size: 1.25rem;
-    margin-right: 2rem;
+    margin-right: 5rem;
   }
 
   .sub-name {
     color: rgb(var(--text-color-secondary));
     margin-bottom: 1rem;
     margin-right: 2rem;
+    margin-right: 5rem;
   }
 
   .icon {
