@@ -1,6 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { DamageTypes } from '@/enums/enums';
+import SBCollection from './SBCollection.vue';
+import genericAction from '@/assets/actions/generic_action.webp';
+import genericBuff from '@/assets/features/generic_buff.webp';
 
 const { statblock } = defineProps({
   statblock: {
@@ -129,47 +132,55 @@ const abilityNumber = (value) => {
     <div v-if="statblock.traits && statblock.traits.length > 0 && statblock.traits.some(t => t.name || t.desc)">
       <span class="header">Notable Features</span>
     </div>
-    <div v-if="statblock.traits && statblock.traits.length > 0 && statblock.traits.some(t => t.name || t.desc)">
-      <div class="feature_container">
-        <div v-for="trait in statblock.traits.filter(t => t.name || t.desc)" class="has-tooltip">
-          <img class="thumbnail" src="@/assets/features/generic_buff.webp">
-          <div class="name-and-desc">
-            <span>{{ trait.name?.replace(/\.$/,'') }}</span>
-            <span>{{ trait.desc }}</span>
-          </div>
-          <div class="tooltip">
-            <div class="bg3-action-tooltip">
-              <span class="name">{{ trait.name?.replace(/\.$/,'') }}</span>
-              <span class="sub-name">Feature</span>
-              <span class="desc">{{ trait.desc }}</span>
-              <img class="icon" src="@/assets/features/generic_buff.webp">
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <SBCollection
+      v-model="statblock.traits"
+      :default-image="genericBuff"
+      title="Feature"
+    />
     <div v-if="statblock.actions && statblock.actions.length > 0">
       <span class="header">Actions</span>
     </div>
-    <div v-if="statblock.actions && statblock.actions.length > 0">
-      <div class="action_container">
-        <div class="has-tooltip" v-for="action in statblock.actions">
-          <img class="thumbnail" src="@/assets/actions/generic_action.webp">
-          <div class="name-and-desc">
-            <span>{{ action.name.replace(/\.$/,'') }}</span>
-            <span>{{ action.desc }}</span>
-          </div>
-          <div class="tooltip">
-            <div class="bg3-action-tooltip">
-              <span class="name">{{ action.name.replace(/\.$/,'') }}</span>
-              <span class="sub-name">Action</span>
-              <span class="desc">{{ action.desc }}</span>
-              <img class="icon" src="@/assets/actions/generic_action.webp">
-            </div>
-          </div>
-        </div>
-      </div>
+    <SBCollection
+      v-model="statblock.actions"
+      :default-image="genericAction"
+      title="Action"
+      square
+    />
+    <div v-if="statblock.bonus_actions && statblock.bonus_actions.length > 0">
+      <span class="header">Bonus Actions</span>
     </div>
+    <SBCollection
+      v-model="statblock.bonus_actions"
+      :default-image="genericAction"
+      title="Bonus Action"
+      square
+    />
+    <div v-if="statblock.reactions && statblock.reactions.length > 0">
+      <span class="header">Reactions</span>
+    </div>
+    <SBCollection
+      v-model="statblock.reactions"
+      :default-image="genericBuff"
+      title="Reaction"
+    />
+    <div v-if="statblock.legendary_actions && statblock.legendary_actions.length > 0">
+      <span class="header">Legendary Actions</span>
+    </div>
+    <SBCollection
+      v-model="statblock.legendary_actions"
+      :default-image="genericAction"
+      title="Legendary Action"
+      square
+    />
+    <div v-if="statblock.lair_actions && statblock.lair_actions.length > 0">
+      <span class="header">Lair Actions</span>
+    </div>
+    <SBCollection
+      v-model="statblock.lair_actions"
+      :default-image="genericAction"
+      title="Lair Action"
+      square
+    />
   </div>
 </template>
 
@@ -376,105 +387,6 @@ const abilityNumber = (value) => {
         height: calc(60rem * 0.025);
         position: absolute;
         top: -1rem;
-      }
-    }
-
-    .feature_container {
-      background-color: rgb(var(--gradient-dark));
-      display: flex;
-      flex-direction: column;
-      gap: .25rem;
-      align-items: baseline;
-      padding: .5rem 1rem;
-      border-radius: .5rem;
-      width: 100%;
-
-      div {
-        width: 100%;
-        border-radius: .5rem;
-
-        img.thumbnail {
-          width: 2rem;
-          height: 2rem;
-          background-color: rgb(var(--gradient-bright));
-          border-radius: 50%;
-          border: .125rem solid rgb(var(--border-color));
-        }
-  
-        div.name-and-desc {
-          position: relative;
-          width: 100%;
-          height: 2.5rem;
-
-          span:first-child {
-            color: rgb(var(--text-color-secondary));
-            margin-right: auto;
-            margin-bottom: auto;
-          }
-
-          span:nth-child(2) {
-            color: rgba(var(--text-color-secondary), .5);
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            margin-right: auto;
-            margin-top: 2.5rem;
-            font-size: .875rem;
-            text-align: left;
-          }
-        }
-      }
-    }
-
-    .action_container {
-      background-color: rgb(var(--gradient-dark));
-      display: flex;
-      flex-direction: column;
-      gap: .25rem;
-      align-items: baseline;
-      padding: .5rem 1rem;
-      border-radius: .5rem;
-      width: 100%;
-
-      div {
-        width: 100%;
-        border-radius: .5rem;
-
-        img.thumbnail {
-          width: 2rem;
-          height: 2rem;
-          background-color: rgb(var(--gradient-bright));
-          border-radius: .125rem;
-          border: .125rem solid rgb(var(--border-color));
-        }
-  
-        div.name-and-desc {
-          position: relative;
-          width: 100%;
-          height: 2.5rem;
-
-          span:first-child {
-            color: rgb(var(--text-color-secondary));
-            margin-right: auto;
-            margin-bottom: auto;
-          }
-
-          span:nth-child(2) {
-            color: rgba(var(--text-color-secondary), .5);
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            margin-right: auto;
-            margin-top: 2.5rem;
-            font-size: .875rem;
-          }
-        }
       }
     }
   }

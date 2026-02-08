@@ -1,6 +1,9 @@
 <script setup>
 import { computed, ref } from 'vue';
 import { DamageTypes } from '@/enums/enums';
+import EditCollection from './EditCollection.vue';
+import genericAction from '@/assets/actions/generic_action.webp';
+import genericBuff from '@/assets/features/generic_buff.webp';
 
 const statblock = defineModel()
 
@@ -37,48 +40,6 @@ const moveItem = (arr, from, to) => {
   }
   const e = arr.splice(from, 1)[0]
   arr.splice(to, 0, e)
-}
-
-const editingActionIndex = ref()
-const editingAction = ref({
-  name: undefined,
-  desc: undefined,
-})
-
-const createNewAction = () => {
-  const last = editingActionIndex.value
-  editingActionIndex.value = statblock.value?.actions?.length ?? 0
-  if (editingActionIndex.value !== last) {
-    editingAction.value = {
-      name: undefined,
-      desc: undefined,
-    }
-  }
-}
-
-const stopEditingAction = () => {
-  editingActionIndex.value = undefined
-}
-
-const confirmEditingAction = () => {
-  if (editingActionIndex.value >= (statblock.value.actions?.length ?? 0)) {
-    statblock.value.actions = [...(statblock.value.actions || []), {}]
-  }
-  statblock.value.actions[editingActionIndex.value].name = editingAction.value.name
-  statblock.value.actions[editingActionIndex.value].desc = editingAction.value.desc
-  statblock.value.actions = statblock.value.actions.filter(a => a.name || a.desc)
-  editingActionIndex.value = undefined
-}
-
-const startEditingAction = idx => {
-  const last = editingActionIndex.value
-  editingActionIndex.value = idx
-  if (editingActionIndex.value !== last) {
-    editingAction.value = {
-      name: statblock.value.actions[idx].name,
-      desc: statblock.value.actions[idx].desc,
-    }
-  }
 }
 
 const editingFeatureIndex = ref()
@@ -269,87 +230,55 @@ const startEditingFeature = idx => {
     <div>
       <span class="header">Notable Features</span>
     </div>
-    <div v-if="editingFeatureIndex !== undefined" class="edit-container">
-      <div class="edit-name">
-        <label class="text-input-label">
-          <span>Name</span>
-          <input v-model="editingFeature.name" type="text" id="edit-feature-name"/>
-        </label>
-        <img src="@/assets/features/generic_buff.webp">
-      </div>
-      <label class="text-input-label edit-desc">
-        <span>Description</span>
-        <textarea v-model="editingFeature.desc" id="edit-feature-desc"/>
-      </label>
-      <button @click="confirmEditingFeature" class="confirm-button">Confirm</button>
-      <button @click="stopEditingFeature" class="close-button"/>
-    </div>
-    <div>
-      <div class="list-container">
-        <button
-          v-for="(trait, idx) in statblock.traits?.filter(t => t.name || t.desc)"
-          class="has-tooltip feature-row"
-          @click="() => startEditingFeature(idx)"
-        >
-          <img class="thumbnail" src="@/assets/features/generic_buff.webp">
-          <div class="name-and-desc">
-            <span>{{ trait.name?.replace(/\.$/,'') }}</span>
-            <span>{{ trait.desc }}</span>
-          </div>
-          <div class="tooltip">
-            <div class="bg3-action-tooltip">
-              <span class="name">{{ trait.name?.replace(/\.$/,'') }}</span>
-              <span class="sub-name">Feature</span>
-              <span class="desc">{{ trait.desc }}</span>
-              <img class="icon" src="@/assets/features/generic_buff.webp">
-            </div>
-          </div>
-        </button>
-        <button class="add-new" @click="createNewFeature"/>
-      </div>
-    </div>
+    <EditCollection
+      v-model="statblock.traits"
+      title="Feature"
+      :default-image="genericBuff"
+    />
     <div>
       <span class="header">Actions</span>
     </div>
-    <div v-if="editingActionIndex !== undefined" class="edit-container">
-      <div class="edit-name">
-        <label class="text-input-label">
-          <span>Name</span>
-          <input v-model="editingAction.name" type="text" id="edit-action-name"/>
-        </label>
-        <img src="@/assets/actions/generic_action.webp">
-      </div>
-      <label class="text-input-label edit-desc">
-        <span>Description</span>
-        <textarea v-model="editingAction.desc" id="edit-action-desc"/>
-      </label>
-      <button @click="confirmEditingAction" class="confirm-button">Confirm</button>
-      <button @click="stopEditingAction" class="close-button"/>
-    </div>
+    <EditCollection
+      v-model="statblock.actions"
+      title="Action"
+      square
+      :default-image="genericAction"
+    />
     <div>
-      <div class="list-container">
-        <button
-          v-for="(action, idx) in statblock.actions?.filter(t => t.name || t.desc)"
-          class="has-tooltip feature-row"
-          @click="() => startEditingAction(idx)"
-        >
-          <img class="thumbnail-square" src="@/assets/actions/generic_action.webp">
-          <div class="name-and-desc">
-            <span>{{ action.name.replace(/\.$/,'') }}</span>
-            <span>{{ action.desc }}</span>
-          </div>
-          <div class="tooltip">
-            <div class="bg3-action-tooltip">
-              <span class="name">{{ action.name.replace(/\.$/,'') }}</span>
-              <span class="sub-name">Action</span>
-              <span class="desc">{{ action.desc }}</span>
-              <img class="icon" src="@/assets/actions/generic_action.webp">
-            </div>
-          </div>
-        </button>
-        <button class="add-new" @click="createNewAction"/>
-      </div>
+      <span class="header">Bonus Actions</span>
     </div>
+    <EditCollection
+      v-model="statblock.bonus_actions"
+      title="Bonus Action"
+      square
+      :default-image="genericAction"
+    />
+    <div>
+      <span class="header">Reactions</span>
+    </div>
+    <EditCollection
+      v-model="statblock.reactions"
+      title="Reaction"
+      :default-image="genericBuff"
+    />
+    <div>
+      <span class="header">Legendary Actions</span>
+    </div>
+    <EditCollection
+      v-model="statblock.legendary_actions"
+      title="Legendary Action"
+      square
+      :default-image="genericAction"
+    />
+    <div>
+      <span class="header">Lair Actions</span>
+    </div>
+    <EditCollection
+      v-model="statblock.lair_actions"
+      title="Lair Action"
+      square
+      :default-image="genericAction"
+    />
   </div>
 </template>
 
@@ -545,175 +474,6 @@ const startEditingFeature = idx => {
         height: calc(60rem * 0.025);
         position: absolute;
         top: -1rem;
-      }
-    }
-
-    &.edit-container {
-      background-color: rgb(var(--gradient-dark));
-      border: .25rem solid rgb(var(--border-color));
-      border-radius: .5rem;
-      position: relative;
-      margin-bottom: .75rem;
-      width: inherit;
-      margin: 0 auto;
-      padding: .5rem 3rem 1.5rem 3rem;
-      display: flex;
-      flex-direction: column;
-
-      .edit-name {
-        label {
-          width: 20rem;
-
-          input {
-            font-size: 1.25rem;
-          }
-        }
-
-        img {
-          width: 3rem;
-          height: 3rem;
-          background-color: rgb(var(--gradient-bright));
-          border-radius: .5rem;
-          border: .125rem solid rgb(var(--border-color));
-        }
-      }
-
-      .edit-desc {
-        width: 100%;
-      }
-
-      .confirm-button {
-        background-color: rgb(var(--color-confirm));
-        border: .125rem solid rgb(var(--border-color));
-        border-radius: .5rem;
-        color: rgb(var(--text-color));
-        font-size: 1rem;
-        padding: .25rem .5rem;
-        min-width: 7.5rem;
-        position: absolute;
-        bottom: 0;
-        right: 50%;
-        transform: translate(50%, 50%);
-
-        &:hover {
-          background-color: rgb(var(--color-confirm-hover));
-        }
-      }
-
-      .close-button {
-        background-color: rgb(var(--gradient-dark));
-        background-size: 1.5rem;
-        background-repeat: no-repeat;
-        background-position: 50%;
-        background-image: url('@/assets/close_d.webp');
-        position: absolute;
-        top: .25rem;
-        right: .25rem;
-        width: 2rem;
-        height: 2rem;
-        border-radius: 50%;
-        border: .125rem solid rgb(var(--border-color));
-
-        &:hover {
-          border-color: rgb(var(--text-color-secondary));
-          background-image: url('@/assets/close_h.webp');
-          background-color: rgb(var(--gradient-bright));
-        }
-      }
-    }
-
-    .list-container {
-      background-color: rgb(var(--gradient-dark));
-      display: flex;
-      flex-direction: column;
-      gap: .25rem;
-      align-items: baseline;
-      padding: .5rem 1rem;
-      border-radius: .5rem;
-      width: 100%;
-
-      button.feature-row {
-        width: 100%;
-        border-radius: .5rem;
-        display: flex;
-        gap: .5rem;
-        align-items: center;
-        justify-content: center;
-        color: rgb(var(--text-color));
-        border: 0;
-        background-color: transparent;
-        font-size: 1rem;
-
-        &:hover {
-          background-color: rgb(var(--gradient-bright));
-        }
-
-        img.thumbnail {
-          width: 2rem;
-          height: 2rem;
-          background-color: rgb(var(--gradient-bright));
-          border-radius: 50%;
-          border: .125rem solid rgb(var(--border-color));
-        }
-
-        img.thumbnail-square {
-          width: 2rem;
-          height: 2rem;
-          background-color: rgb(var(--gradient-bright));
-          border-radius: .125rem;
-          border: .125rem solid rgb(var(--border-color));
-        }
-  
-        div.name-and-desc {
-          position: relative;
-          width: 100%;
-          height: 2.5rem;
-
-          span:first-child {
-            color: rgb(var(--text-color-secondary));
-            margin-right: auto;
-            margin-bottom: auto;
-          }
-
-          span:nth-child(2) {
-            color: rgba(var(--text-color-secondary), .5);
-            text-overflow: ellipsis;
-            overflow: hidden;
-            white-space: nowrap;
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            margin-right: auto;
-            margin-top: 2.5rem;
-            font-size: .875rem;
-            text-align: left;
-          }
-        }
-      }
-
-      button.add-new {
-        width: 100%;
-        height: 2.5rem;
-        padding: 0;
-        background-color: transparent;
-        border-radius: .5rem;
-        border: 0;
-        color: rgb(var(--border-color));
-        position: relative;
-
-        &:hover {
-          background-color: rgb(var(--gradient-bright));
-          color: rgb(var(--text-color-secondary));
-        }
-
-        &::after {
-          content: '+';
-          font-size: 2.5rem;
-          position: absolute;
-          top: calc(50% - .125rem);
-          left: 50%;
-          transform: translate(-50%, -50%);
-        }
       }
     }
 
