@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { DamageTypes } from '@/enums/enums';
+import { DamageTypes } from '@/enums';
+import { damageTypeToImage } from '@/helpers';
 import EditCollection from './EditCollection.vue';
 import genericAction from '@/assets/actions/generic_action.webp';
 import genericBuff from '@/assets/features/generic_buff.webp';
@@ -11,7 +12,7 @@ const resistances = computed(() => {
   return Object.values(DamageTypes).map(t => {return {
     id: t,
     name: t[0].toUpperCase() + t.slice(1),
-    image: `/src/assets/damage_types/${t}.webp`,
+    image: damageTypeToImage(t),
     vulnerable: statblock.value.damage_vulnerabilities?.toLowerCase().includes(t),
     resistant: statblock.value.damage_resistances?.toLowerCase().includes(t),
     immune: statblock.value.damage_immunities?.toLowerCase().includes(t),

@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue';
-import { DamageTypes } from '@/enums/enums';
+import { DamageTypes } from '@/enums';
+import { damageTypeToImage } from '@/helpers';
 import SBCollection from './SBCollection.vue';
 import genericAction from '@/assets/actions/generic_action.webp';
 import genericBuff from '@/assets/features/generic_buff.webp';
@@ -25,7 +26,7 @@ const headline = computed(() => {
 const resistances = computed(() => {
   return Object.values(DamageTypes).map(t => {return {
     name: t[0].toUpperCase() + t.slice(1),
-    image: `/src/assets/damage_types/${t}.webp`,
+    image: damageTypeToImage(t),
     vulnerable: statblock.damage_vulnerabilities?.toLowerCase().includes(t),
     resistant: statblock.damage_resistances?.toLowerCase().includes(t),
     immune: statblock.damage_immunities?.toLowerCase().includes(t),
