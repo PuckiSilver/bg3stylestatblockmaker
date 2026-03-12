@@ -1,3 +1,22 @@
+body {
+  --background-color: 0, 0, 0;
+  --gradient-dark: 24, 20, 17;
+  --gradient-bright: 46, 38, 29;
+  --border-color: 110, 80, 54;
+  --text-color-secondary: 153, 124, 97;
+  --text-color-secondary-hover: 201, 164, 129;
+  --text-color: 255, 255, 255;
+  --shadow-color: 0, 0, 0;
+  --color-confirm: 52, 72, 53;
+  --color-confirm-hover: 81, 99, 64;
+
+  background: rgb(var(--background-color));
+  color: rgb(var(--text-color));
+  font-family: "Aldine 721 Bold BT";
+  height: 100vh;
+  overflow-y: auto;
+}
+
 .has-tooltip {
   position: relative;
 
@@ -102,6 +121,41 @@ textarea {
   }
 }
 
+select {
+  font-size: 1rem;
+  color: rgb(var(--text-color));
+  background-color: rgb(var(--gradient-bright));
+  border-radius: .5rem;
+  border: .125rem solid rgb(var(--border-color));
+  padding: .25rem .5rem;
+  max-width: 100%;
+  box-sizing: border-box;
+  min-width: 100%;
+
+  &:focus {
+    outline: none;
+    border-color: rgb(var(--text-color-secondary));
+  }
+}
+
+label.select-input-label {
+  background-color: rgb(var(--gradient-bright));
+  position: relative;
+  padding: 1rem .25rem .25rem .25rem;
+  border-radius: .5rem;
+
+  span {
+    background-color: rgb(var(--gradient-bright));
+    position: absolute;
+    top: 0;
+    left: 1rem;
+    z-index: 1;
+    padding: 0 .25rem;
+    font-size: .825rem;
+    color: rgb(var(--text-color-secondary));
+  }
+}
+
 label.text-input-label {
   background-color: rgb(var(--gradient-bright));
   position: relative;
@@ -142,4 +196,12 @@ label.text-input-label {
 
 button:hover {
   cursor: pointer;
+}
+
+a {
+  color: rgb(var(--text-color-secondary));
+
+  &:hover {
+    color: rgb(var(--text-color-secondary-hover));
+  }
 }

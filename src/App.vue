@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import Statblock from './components/Statblock.vue';
 import EditStatblock from './components/EditStatblock.vue';
 import yaml from 'js-yaml';
+import Import from './components/Import.vue';
 
 const message = ref('');
 const eToolsImport = ref('');
@@ -59,36 +60,37 @@ const import5eTools = () => {
 </script>
 
 <template>
-  <main>
+  <nav>
     <h1>BG3 Style Stat Block Maker</h1>
-    <textarea v-model="message" placeholder="Paste a yml statblock here in order to display it..." rows="5" cols="65"></textarea>
-    <textarea v-model="eToolsImport" />
-    <button @click="import5eTools">Import from 5eTools</button>
-    {{ a }}
+    <div class="action-buttons">
+      <Import v-model="a"/>
+    </div>
+  </nav>
+  <main>
     <div class="row">
       <EditStatblock v-model="a"/>
       <Statblock :statblock="a" />
     </div>
+    {{ a }}
   </main>
 </template>
 
 <style scoped>
-main {
-  --background-color: 0, 0, 0;
-  --gradient-dark: 24, 20, 17;
-  --gradient-bright: 46, 38, 29;
-  --border-color: 110, 80, 54;
-  --text-color-secondary: 153, 124, 97;
-  --text-color: 255, 255, 255;
-  --shadow-color: 0, 0, 0;
-  --color-confirm: 52, 72, 53;
-  --color-confirm-hover: 81, 99, 64;
+nav {
+  background-color: rgb(var(--gradient-dark));
+  margin: 0;
+  padding: 0 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 
-  background: rgb(var(--background-color));
-  color: rgb(var(--text-color));
-  font-family: "Aldine 721 Bold BT";
-  height: 100vh;
-  overflow-y: auto;
+  h1 {
+    margin: 0;
+    padding: 1rem 0;
+  }
+}
+
+main {
   padding: 1rem;
 
   textarea {
