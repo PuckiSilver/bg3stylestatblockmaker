@@ -119,6 +119,11 @@ textarea {
     outline: none;
     border-color: rgb(var(--text-color-secondary));
   }
+
+  &:disabled {
+    border-color: rgb(var(--gradient-bright));
+    cursor: auto;
+  }
 }
 
 select {

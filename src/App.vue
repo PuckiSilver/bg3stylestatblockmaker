@@ -4,6 +4,7 @@ import Statblock from './components/Statblock.vue';
 import EditStatblock from './components/EditStatblock.vue';
 import yaml from 'js-yaml';
 import Import from './components/Import.vue';
+import Export from './components/Export.vue';
 
 const message = ref('');
 const eToolsImport = ref('');
@@ -64,6 +65,7 @@ const import5eTools = () => {
     <h1>BG3 Style Stat Block Maker</h1>
     <div class="action-buttons">
       <Import v-model="a"/>
+      <Export v-model="a"/>
     </div>
   </nav>
   <main>
@@ -87,6 +89,11 @@ nav {
   h1 {
     margin: 0;
     padding: 1rem 0;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
   }
 }
 

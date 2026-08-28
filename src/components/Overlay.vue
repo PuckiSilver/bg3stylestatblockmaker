@@ -28,7 +28,7 @@ div.overlay {
   background-color: rgba(var(--background-color), .5);
   overflow-y: auto;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: safe center;
+  align-items: safe center;
 }
 </style>
