@@ -170,6 +170,7 @@ export const statblockToInlineHtml = (statblock) => {
         'font-weight': '500',
         'font-size': '1rem',
     },
+        `<!-- ${JSON.stringify(statblock)} -->` +
         element('div', {...divStyle, 'width': '100%'},
             element('div', {...divStyle, 'width': 'calc(50% - .5rem)'},
                 // Other Info
