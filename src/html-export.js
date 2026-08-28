@@ -1,5 +1,4 @@
 import { DamageTypes } from '@/enums';
-import { damageTypeToImage } from '@/helpers';
 
 const c = {
     'background-color': '0, 0, 0',
@@ -66,6 +65,25 @@ const actionTooltip = {
     'bottom': 'calc(100% + .25rem)',
     'left': '50%',
     'transform': 'translate(-50%, 0)',
+}
+
+const damageTypeToImage = (dmgType) => {
+    switch (dmgType) {
+        case DamageTypes.Slashing: return 'slashing.webp'
+        case DamageTypes.Piercing: return 'piercing.webp'
+        case DamageTypes.Bludgeoning: return 'bludgeoning.webp'
+        case DamageTypes.Acid: return 'acid.webp'
+        case DamageTypes.Thunder: return 'thunder.webp'
+        case DamageTypes.Necrotic: return 'necrotic.webp'
+        case DamageTypes.Fire: return 'fire.webp'
+        case DamageTypes.Lightning: return 'lightning.webp'
+        case DamageTypes.Cold: return 'cold.webp'
+        case DamageTypes.Psychic: return 'psychic.webp'
+        case DamageTypes.Poison: return 'poison.webp'
+        case DamageTypes.Force: return 'force.webp'
+        case DamageTypes.Radiant: return 'radiant.webp'
+        default: return ''
+    }
 }
 
 const modifierBonus = (abilityScore) => {
@@ -149,7 +167,7 @@ const featureContainer = (title, itemTitle, collection, image, roundImage = fals
 export const statblockToInlineHtml = (statblock) => {
     const resistances = Object.values(DamageTypes).map(t => {return {
             name: t[0].toUpperCase() + t.slice(1),
-            image: damageTypeToImage(t).split('/').at(-1),
+            image: damageTypeToImage(t),
             vulnerable: statblock.damage_vulnerabilities?.toLowerCase().includes(t),
             resistant: statblock.damage_resistances?.toLowerCase().includes(t),
             immune: statblock.damage_immunities?.toLowerCase().includes(t),
